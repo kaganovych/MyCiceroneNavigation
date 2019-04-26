@@ -7,14 +7,38 @@ import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.android.synthetic.main.activity_main.*
+import ru.terrakok.cicerone.Router
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RouterProvider {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_main)
 
     initViews()
+
+    if (savedInstanceState == null) {
+      bottomNavView.selectedItemId = BottomType.ANDROID.ordinal
+    }
+  }
+
+  override fun onBackPressed() {
+    val fm = supportFragmentManager
+    var fragment: Fragment? = null
+    val fragments = fm.fragments
+    for (f in fragments) {
+      if (f.isVisible) {
+        fragment = f
+        break
+      }
+    }
+    if (fragment is BackButtonListener && (fragment as BackButtonListener).onBackPressed()) return
+
+    getRouter().exit()
+  }
+
+  override fun getRouter(): Router {
+    return app.router
   }
 
   private fun initViews() {
@@ -55,12 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     val transaction = fm.beginTransaction()
     if (newFragment == null) {
-      val fragment: Fragment = when(type) {
-        BottomType.ANDROID -> {}
-        BottomType.BUG -> {}
-        BottomType.DOG -> {}
-      }
-      transaction.add(R.id.mainContainer, Screens.TabScreen(tab).getFragment(), tab)
+      transaction.add(R.id.mainContainer, Screens.TabScreen(type.name).fragment, type.name)
     }
 
     if (currentFragment != null) {

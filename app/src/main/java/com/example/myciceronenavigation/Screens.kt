@@ -5,10 +5,17 @@ import ru.terrakok.cicerone.android.support.SupportAppScreen
 
 class Screens {
 
-  class SampleScreen: SupportAppScreen() {
+  class ForwardScreen(private val containerName: String, private val number: Int) : SupportAppScreen() {
+
     override fun getFragment(): Fragment {
-      return super.getFragment()
+      return ForwardFragment.getNewInstance(containerName, number)
     }
   }
 
+  class TabScreen(private val tabName: String) : SupportAppScreen() {
+
+    override fun getFragment(): Fragment {
+      return TabContainerFragment.getNewInstance(tabName)
+    }
+  }
 }
